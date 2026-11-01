@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>냥's 톡톡 - 고양이 소리로 기분을 짐작해 봐요</title>
+<meta name="description" content="고양이 울음소리를 기기 안에서 듣고 지금 기분을 채팅처럼 짐작해 보여주는 참고용 앱. 맞아요·아니에요로 알려 줄수록 우리 고양이에게 맞춰져요. 운영: 티닉스">
+<meta name="theme-color" content="#B9AAEE">
+<link rel="icon" href="mascot-face.png">
+<style>
+@font-face { font-family: "DongleTitle"; src: url("dongle-title.ttf") format("truetype"); font-display: swap; }
+:root {
+  --lav-top: #C4B7F2; --lav-bottom: #AE9DEA; --lav: #8E7AE6; --lav-soft: #B3A3F0;
+  --tint: #F1EDFC; --line: #E7E1FA; --bg: #F8F5FD;
+  --ink: #3D3373; --ink-soft: #6A6290; --muted: #8A82B0;
+  --peach: #FF8C5F; --rose: #D6448C;
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  color: var(--ink); background: var(--bg); line-height: 1.7; -webkit-font-smoothing: antialiased; word-break: keep-all;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+/* ---------- 첫 화면 ---------- */
+.hero {
+  position: relative; overflow: hidden; text-align: center;
+  background: linear-gradient(180deg, var(--lav-top) 0%, var(--lav-bottom) 100%);
+  padding: 56px 20px 64px; border-radius: 0 0 36px 36px;
+}
+.hero::before, .hero::after {
+  content: ""; position: absolute; border-radius: 50%; background: rgba(255,255,255,.14); pointer-events: none;
+}
+.hero::before { width: 320px; height: 320px; top: -120px; left: -110px; }
+.hero::after { width: 240px; height: 240px; bottom: -90px; right: -70px; }
+.stage { position: relative; width: 260px; height: 300px; margin: 0 auto; }
+.mascot {
+  position: absolute; left: 50%; bottom: 18px; width: 230px; transform: translateX(-50%);
+  animation: pop .9s var(--spring) both, float 4.5s ease-in-out 1s infinite;
+}
+.shadow {
+  position: absolute; left: 50%; bottom: 8px; width: 150px; height: 18px; transform: translateX(-50%);
+  border-radius: 50%; background: rgba(74,61,150,.22); filter: blur(6px);
+  animation: shadow 4.5s ease-in-out 1s infinite;
+}
+.bubble {
+  position: absolute; top: 4px; right: -34px; background: #fff; border-radius: 22px;
+  padding: 6px 20px 2px; box-shadow: 0 8px 20px rgba(91,79,168,.22);
+  font-family: "DongleTitle", sans-serif; font-size: 40px; line-height: 1.1;
+  animation: bubble .7s var(--spring) .55s both;
+  transform-origin: 18% 100%;
+}
+.bubble::after {
+  content: ""; position: absolute; left: 22px; bottom: -11px; width: 22px; height: 16px; background: #fff;
+  clip-path: polygon(0 0, 100% 0, 10% 100%);
+}
+.grad {
+  background: linear-gradient(135deg, var(--peach), var(--rose));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.title { position: relative; display: inline-block; margin-top: 6px; font-family: "DongleTitle", sans-serif; font-size: 76px; line-height: .95; }
+.title .outline { position: absolute; inset: 0; color: #fff; -webkit-text-stroke: 10px #fff; text-shadow: 0 6px 18px rgba(74,61,150,.25); z-index: 0; }
+.title .grad { position: relative; z-index: 1; }
+.tagline { margin-top: 10px; font-size: 16px; color: #fff; font-weight: 600; text-shadow: 0 1px 8px rgba(74,61,150,.25); }
+.btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px;
+  font-size: 14.5px; font-weight: 700; text-decoration: none; transition: transform .25s var(--spring), box-shadow .25s;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 999px;
+  font-size: 14.5px; font-weight: 700; color: var(--ink); background: rgba(255,255,255,.92);
+  box-shadow: 0 8px 20px rgba(74,61,150,.18);
+}
+.note a { color: #fff; font-weight: 600; text-underline-offset: 3px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--peach), var(--rose)); }
+.note { margin-top: 12px; font-size: 12.5px; color: rgba(255,255,255,.88); }
+
+/* ---------- 본문 ---------- */
+section { padding: 52px 0 8px; }
+.eyebrow { text-align: center; font-size: 13px; font-weight: 700; color: var(--lav); letter-spacing: .02em; }
+h2 { text-align: center; font-size: 22px; margin: 4px 0 26px; color: var(--ink); }
+
+/* 채팅 미리보기 */
+.chat {
+  background: linear-gradient(180deg, #EDE8FB, #F8F5FD); border: 1px solid var(--line); border-radius: 28px;
+  padding: 18px 16px 20px; max-width: 420px; margin: 0 auto; box-shadow: 0 14px 34px rgba(91,79,168,.10);
+}
+.chat-head { display: flex; align-items: center; gap: 10px; padding: 4px 6px 14px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: #fff url("mascot-face.png") center/cover; box-shadow: 0 2px 8px rgba(91,79,168,.18); flex: none; }
+.chat-head b { font-family: "DongleTitle", sans-serif; font-weight: 400; font-size: 30px; line-height: .9; color: var(--ink); }
+.chat-head small { display: block; font-size: 12px; color: var(--muted); }
+.sys { width: fit-content; margin: 2px auto 12px; background: rgba(255,255,255,.8); color: var(--ink-soft); font-size: 12px; padding: 6px 14px; border-radius: 999px; }
+.row { display: flex; gap: 8px; align-items: flex-end; margin: 10px 0; }
+.row.me { justify-content: flex-end; }
+.msg { border-radius: 20px; padding: 10px 14px; font-size: 14.5px; max-width: 78%; }
+.cat .msg { background: #fff; border-top-left-radius: 6px; box-shadow: 0 4px 14px rgba(91,79,168,.12); }
+.cat .msg small { display: block; font-size: 12px; color: var(--muted); }
+.me .msg { background: linear-gradient(135deg, var(--lav-soft), var(--lav)); color: #fff; border-bottom-right-radius: 6px; box-shadow: 0 4px 12px rgba(142,122,230,.25); }
+.chips { display: flex; gap: 6px; margin-left: 46px; }
+.row.cat > div:last-child { max-width: 82%; }
+.row.cat > div:last-child .msg { max-width: none; }
+.lbl { font-size: 11.5px; color: var(--muted); margin: 0 0 3px 2px; }
+.lbl b { color: var(--lav); font-weight: 700; }
+.why { font-size: 12px; color: #5B4FA8; margin: 6px 0 6px 46px; line-height: 1.5; }
+.steps { display: grid; gap: 12px; counter-reset: s; }
+.step { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 18px 20px 18px 66px; box-shadow: 0 6px 20px rgba(91,79,168,.06); }
+.step::before { counter-increment: s; content: counter(s); position: absolute; left: 20px; top: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--lav-soft), var(--lav)); box-shadow: 0 4px 10px rgba(142,122,230,.3); }
+.step h3 { font-size: 16px; margin-bottom: 2px; }
+.step p { font-size: 14px; color: var(--ink-soft); }
+.learn-note { margin-top: 14px; background: var(--tint); border-radius: 18px; padding: 14px 18px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.65; }
+.learn-note b { color: var(--ink); }
+.chip { font-size: 12px; font-weight: 600; color: #5B4FA8; background: var(--tint); border: 1px solid var(--line); padding: 4px 11px; border-radius: 999px; }
+
+/* 기능 카드 */
+.cards { display: grid; gap: 14px; }
+.card {
+  display: flex; gap: 16px; align-items: flex-start; background: #fff; border: 1px solid var(--line);
+  border-radius: 24px; padding: 20px 22px; box-shadow: 0 6px 20px rgba(91,79,168,.06);
+}
+.icon { width: 46px; height: 46px; border-radius: 16px; background: var(--tint); display: flex; align-items: center; justify-content: center; font-size: 22px; flex: none; }
+.card h3 { font-size: 16px; margin-bottom: 4px; }
+.card p { font-size: 14px; color: var(--ink-soft); }
+.cues { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.cue { background: var(--tint); border-radius: 14px; padding: 10px 6px; text-align: center; font-size: 13px; font-weight: 700; color: var(--ink); }
+.cue span { display: block; font-size: 19px; }
+
+/* 믿고 쓰는 이유 */
+.trust { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 8px 22px; box-shadow: 0 6px 20px rgba(91,79,168,.06); }
+.trust li { list-style: none; display: flex; gap: 12px; padding: 14px 0; font-size: 14.5px; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+.trust li:last-child { border-bottom: 0; }
+.trust li b { color: var(--ink); }
+
+/* 마무리 */
+.cta { text-align: center; padding: 56px 0 8px; }
+.cta img { width: 96px; }
+.cta p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+footer { margin-top: 40px; padding: 26px 20px 44px; text-align: center; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); }
+footer a { color: var(--lav); text-decoration: none; font-weight: 600; }
+
+/* 스프링 움직임 */
+@keyframes pop { from { opacity: 0; transform: translateX(-50%) scale(.82); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+@keyframes float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-7px); } }
+@keyframes shadow { 0%,100% { transform: translateX(-50%) scale(1); opacity: 1; } 50% { transform: translateX(-50%) scale(.9); opacity: .75; } }
+@keyframes bubble { from { opacity: 0; transform: scale(.4) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .7s var(--spring); }
+.reveal.on { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .mascot, .shadow, .bubble { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+@media (min-width: 720px) {
+  .hero { padding: 72px 20px 80px; }
+  .stage { width: 320px; height: 370px; }
+  .mascot { width: 290px; }
+  .shadow { width: 190px; }
+  .bubble { right: -46px; font-size: 46px; }
+  .title { font-size: 92px; }
+  .tagline { font-size: 18px; }
+}
+@media (max-width: 380px) {
+  .stage { width: 220px; height: 260px; }
+  .mascot { width: 196px; }
+  .bubble { right: -22px; font-size: 34px; }
+  .title { font-size: 64px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="stage">
+    <div class="shadow"></div>
+    <img class="mascot" src="mascot.png" alt="냥's 톡톡 마스코트 흰 고양이" width="230">
+    <div class="bubble"><span class="grad">안냥!</span></div>
+  </div>
+  <h1 class="title"><span class="outline" aria-hidden="true">냥's 톡톡</span><span class="grad">냥's 톡톡</span></h1>
+  <p class="tagline">고양이 울음소리로 지금 기분을 짐작해 봐요<br>알려 줄수록 우리 고양이에게 맞춰져요</p>
+  <div class="btns">
+    <span class="badge"><span class="dot"></span>구글 플레이 출시 준비 중</span>
+  </div>
+  <p class="note">안드로이드 전용 · 무료 · 광고 포함 · <a href="privacy-policy.html">개인정보처리방침</a></p>
+</header>
+
+<main class="wrap">
+  <section class="reveal">
+    <p class="eyebrow">이렇게 보여요</p>
+    <h2>고양이가 채팅으로 말하듯</h2>
+    <div class="chat" aria-label="앱 채팅 화면 예시">
+      <div class="chat-head">
+        <div class="avatar"></div>
+        <div><b>냥's 톡톡</b><small>나비의 소리를 듣고 있어요…</small></div>
+      </div>
+      <div class="sys">나비가 채팅방에 들어왔어요 🐾</div>
+      <div class="row me"><div class="msg">📣 "이리 와" 소리를 들려줬어요</div></div>
+      <div class="row cat"><div class="avatar"></div><div><p class="lbl">배고픔/밥요구 · <b>나비 맞춤 짐작</b></p><div class="msg">🍖 배고파요냥... 밥 주세요냥!</div></div></div>
+      <p class="why">🧠 비슷한 소리를 "배고픔/밥요구"(으)로 알려 주신 기록 3번을 참고했어요</p>
+      <div class="chips"><span class="chip">👍 맞아요</span><span class="chip">👎 아니에요</span></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <p class="eyebrow">우리 고양이 맞춤 학습</p>
+    <h2>알려 줄수록 맞춰져요</h2>
+    <div class="steps">
+      <div class="step"><h3>소리를 듣고 짐작해요</h3><p>처음에는 고양이 발성 연구를 바탕으로 한 기본 규칙으로 짐작해요. 음높이가 오르는지 내리는지, 길이, 크기, 반복까지 살펴봐요.</p></div>
+      <div class="step"><h3>"맞아요 / 아니에요"로 알려 주세요</h3><p>틀렸다면 실제 상황을 골라 주세요. 그 소리의 특징과 정답을 휴대폰 안에 기억해요.</p></div>
+      <div class="step"><h3>비슷한 소리에 바로 반영해요</h3><p>다음에 비슷한 소리가 들리면 기억을 참고해 답하고, 어떤 기록을 참고했는지 말풍선 아래에 알려 줘요. 사람이 흉내 낸 소리라고 알려 주면 비슷한 소리는 걸러 봐요.</p></div>
+    </div>
+    <div class="learn-note">
+      <b>메뉴 [맞춤 학습 현황]</b>에서 기억한 소리 수와 맞힌 비율이 어떻게 변했는지 볼 수 있고, 언제든 지울 수 있어요.
+      고양이 이름별로 따로 배우고, 소리 자체가 아니라 특징 숫자만 이 휴대폰에 저장해요.
+      기록이 쌓일수록 맞춰지지만, 결과는 여전히 참고용 짐작이에요.
+    </div>
+  </section>
+
+  <section class="reveal">
+    <p class="eyebrow">할 수 있는 것</p>
+    <h2>이런 걸 할 수 있어요</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="icon">👂</div>
+        <div>
+          <h3>울음소리로 기분 짐작하기</h3>
+          <p>마이크로 울음소리를 들으면 인사, 배고픔, 경계, 애정 표현 등 12가지 상황 중 어떤 느낌에 가까운지 짐작해 보여주고, 고양이가 말하는 듯한 귀여운 말투로 읽어줘요. 잘 모르겠을 때는 모르겠다고 솔직하게 답해요.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">🧠</div>
+        <div>
+          <h3>우리 고양이에게 맞춰지는 짐작</h3>
+          <p>알려 준 답을 기억해 비슷한 소리에 반영하고, 근거도 함께 보여줘요. 고양이가 여러 마리라면 이름을 바꿔 따로 배우게 할 수 있어요.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon">📣</div>
+        <div>
+          <h3>고양이에게 먼저 말 걸기</h3>
+          <p>6가지 소리 중 골라 들려줄 수 있어요. 고양이의 주의를 끌거나 편안하게 하는 데 도움이 될 수 있다고 알려진 소리를 직접 합성해 만들었어요.</p>
+          <div class="cues">
+            <div class="cue"><span>📣</span>이리 와</div>
+            <div class="cue"><span>💛</span>착하다</div>
+            <div class="cue"><span>🍖</span>밥 시간</div>
+            <div class="cue"><span>✋</span>안 돼</div>
+            <div class="cue"><span>🌙</span>괜찮아</div>
+            <div class="cue"><span>🧶</span>놀자</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <p class="eyebrow">안심하고 쓰세요</p>
+    <h2>믿고 쓸 수 있는 이유</h2>
+    <ul class="trust">
+      <li><span>🔒</span><span><b>기기 안에서만 분석해요.</b> 마이크로 들은 소리는 서버로 보내지도, 저장하지도 않아요.</span></li>
+      <li><span>🧠</span><span><b>학습도 휴대폰 안에서만.</b> 소리 특징 숫자와 알려 주신 답만 이 휴대폰에 저장하고, 언제든 지울 수 있어요.</span></li>
+      <li><span>🚫</span><span><b>회원가입이 없어요.</b> 이름·전화번호 같은 개인 식별 정보를 모으지 않아요.</span></li>
+      <li><span>🧪</span><span><b>과장하지 않아요.</b> 사람 말처럼 "번역"하는 게 아니라 참고용 추정이에요. 틀릴 수 있어요.</span></li>
+      <li><span>🩺</span><span><b>아파 보이면 병원 먼저.</b> 고양이가 아파 보이면 앱보다 수의사 상담이 먼저예요.</span></li>
+    </ul>
+  </section>
+
+  <section class="cta reveal">
+    <img src="mascot.png" alt="" width="96">
+    <h2>곧 구글 플레이에서 만나요</h2>
+    <p>출시되면 이곳에 구글 플레이 링크를 올려 둘게요.</p>
+  </section>
+</main>
+
+<footer>
+  운영자: 티닉스 · 문의: 1984bok@gmail.com<br>
+  <a href="privacy-policy.html">개인정보처리방침</a>
+</footer>
+
+<script>
+  // 스크롤해서 보일 때 부드럽게 떠오르기 (지원하지 않는 브라우저는 바로 표시)
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('on'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body>
+</html>
